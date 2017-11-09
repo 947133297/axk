@@ -13,7 +13,7 @@ const httpHost, tcpHost = ":12306", ":12307"
 var logger *log.Logger
 
 func main() {
-	if err := initLog("log/log.txt"); err != nil {
+	if err := initLog("log", "log.txt"); err != nil {
 		panic(err)
 	}
 
@@ -62,7 +62,10 @@ func handleConn(conn net.Conn) {
 }
 
 // 初始化日志
-func initLog(logName string) (err error) {
+func initLog(dirName, logName string) (err error) {
+	dir, _ := os.Getwd()
+	os.Mkdir(dir+"/"+dirName, os.ModePerm)
+	logName = dirName + "/" + logName
 	var file *os.File
 	if _, err = os.Stat(logName); os.IsNotExist(err) {
 		fmt.Println("create")
