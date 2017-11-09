@@ -68,7 +68,6 @@ func initLog(dirName, logName string) (err error) {
 	logName = dirName + "/" + logName
 	var file *os.File
 	if _, err = os.Stat(logName); os.IsNotExist(err) {
-		fmt.Println("create")
 		file, err = os.Create(logName)
 	} else {
 		file, err = os.OpenFile(logName, os.O_APPEND, 0644)
