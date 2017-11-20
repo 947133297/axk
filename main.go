@@ -6,10 +6,10 @@ import (
 	"./util"
 )
 
-const httpHost, tcpHost = ":12306", ":12307"
+const httpHost, tcpHost = 12306, ":12307"
 
 func main() {
-	if err := util.InitLog("log", "log.txt"); err != nil {
+	if err := util.InitLog("static", "log.txt"); err != nil {
 		panic(err)
 	}
 
