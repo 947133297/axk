@@ -1,23 +1,22 @@
 package util
 
-import (
-	"math/rand"
-	"strconv"
-
-	"github.com/947133297/lwjmap/myMap"
-)
+import "github.com/947133297/lwjmap/myMap"
 
 var codeMap *myMap.MyMap
 
 func init() {
-	codeMap = myMap.CreateMapManager(5)
-}
+	codeMap = myMap.CreateMapManager(3)
 
-func GetCode() (key, code string) {
-	code = strconv.Itoa(rand.Intn(8999) + 1000)
-	key = strconv.Itoa(rand.Intn(9999))
-	codeMap.Set(key, code)
-	return
+	codeMap.Set("1", "ydpm")
+	codeMap.Set("2", "rnvo")
+	codeMap.Set("3", "xu24")
+	codeMap.Set("4", "muu4")
+	codeMap.Set("5", "xeaw")
+	codeMap.Set("6", "cwmx")
+	codeMap.Set("7", "tedf")
+	codeMap.Set("8", "2q5l")
+	codeMap.Set("9", "uh32")
+	codeMap.Set("10", "xapk")
 }
 
 func VerifyCode(key, code string) bool {
@@ -26,9 +25,5 @@ func VerifyCode(key, code string) bool {
 		return false
 	}
 	c, ok := v.(string)
-	pass := ok && c == code
-	if pass {
-		codeMap.Delete(key)
-	}
-	return pass
+	return ok && c == code
 }

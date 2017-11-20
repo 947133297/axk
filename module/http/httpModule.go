@@ -2,6 +2,8 @@ package http
 
 import (
 	"fmt"
+	"math/rand"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -22,10 +24,12 @@ func HandleHTTP(httpHost int) {
 	// 配置静态文件
 	wd, _ := os.Getwd()
 	app.HttpServer.ServerFile("/web/*filepath", wd+"/static/web")
+	app.HttpServer.ServerFile("/img/*filepath", wd+"/static/vk")
 	app.HttpServer.SetEnabledListDir(false)
 
 	// 配置路由
-	app.HttpServer.Any("/register", register)
+	app.HttpServer.POST("/register", register)
+	app.HttpServer.GET("/vk", getVK)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
@@ -33,28 +37,36 @@ func HandleHTTP(httpHost int) {
 }
 
 func register(ctx dotweb.Context) error {
-	r := ctx.Request()
-	if r.Method == "GET" {
-		key, code := util.GetCode()
-		ctx.WriteJson(&model.HttpResponseJson{
-			Code: 0,
-			Msg:  key + " - " + code,
-		})
-		return nil
-	}
-
-	//POST or other
-	// r.ParseForm()
-	// account := r.PostFormValue("account")
-	// pwd := r.PostFormValue("pwd")
-	// key := r.PostFormValue("key")
-	// code := r.PostFormValue("code")
-
-	// pass := util.VerifyCode(key, code)
 	data := new(model.RegistData)
 	if err := ctx.Bind(data); err != nil {
 		return err
 	}
-	ctx.WriteString(fmt.Sprint(data))
+	k := ctx.Session().Get("vk")
+	var key string
+	if k != nil {
+		key = k.(string)
+	} else {
+		util.Println("session read failed, get nil", "\r\n")
+	}
+	pass := util.VerifyCode(key, data.Code)
+	resp := new(model.HttpResponseJson)
+	if !pass {
+		resp.Code = 1
+		resp.Msg = "verify code err"
+	} else {
+		resp.Code = 0
+		resp.Msg = "ok"
+		// TODO 执行入库代码
+	}
+	ctx.WriteJson(resp)
 	return nil
+}
+
+func getVK(ctx dotweb.Context) error {
+	rc := strconv.Itoa(rand.Intn(9) + 1)
+	if err := ctx.Session().Set("vk", rc); err != nil {
+		util.Println("session set error => ", err, "\r\n")
+	}
+	url := fmt.Sprintf("/img/%s.jpg", rc)
+	return ctx.Redirect(http.StatusMovedPermanently, url)
 }

@@ -2,9 +2,8 @@ package model
 
 type RegistData struct {
 	Pwd     string
-	Key     string
-	Code    string
 	Account string
+	Code    string
 }
 
 type HttpResponseJson struct {
