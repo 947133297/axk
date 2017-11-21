@@ -1,11 +1,8 @@
 package util
 
 import (
-	"database/sql"
 	"log"
 	"os"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var logger *log.Logger
@@ -33,34 +30,6 @@ func Println(v ...interface{}) {
 
 func Fatalln(v ...interface{}) {
 	logger.Fatalln(v)
-}
-
-const _DB_NAME = "axk"
-
-func init() {
-	initDB()
-
-}
-func initDB() {
-	// create db if not exists
-	db, err := sql.Open("mysql", "root:qq5566@/mysql")
-	HandleErr(err, true)
-	db.Exec("create database " + _DB_NAME)
-	db, err = sql.Open("mysql", "root:qq5566@/"+_DB_NAME)
-	HandleErr(err, true)
-
-	//create table # USER
-	_, err = db.Exec(`
-		create table if not exists user(
-			id int(10),
-			account varchar(30),
-			pwd varchar(30) not null,
-			msg_tmp1 varchar(50),
-			msg_tmp2 varchar(50),
-			PRIMARY KEY (id),
-			unique key (account)
-		)`)
-	HandleErr(err, true)
 }
 
 func HandleErr(err error, ifExit bool) {

@@ -29,7 +29,6 @@
         display: inline-block;
     }
 </style>
-<style scoped src="../../assert/css/common.css"></style>
 <style>
     body{
         background-color: #f5f5f5 !important;
@@ -84,6 +83,7 @@
 </template>
 
 <script>
+    var http = require("../../assert/js/common");
     export default {
         methods: {
             change: function () {
@@ -123,18 +123,25 @@
             showTip("两次输入密码不一致")
             return ;
         }
+        if(this.code.length === 0){
+            showTip("请填验证码");
+            return ;
+        }
         var form = {
             Account:this.RegAccount,
             Pwd:this.RegPwd,
-            Code:this.code
+            Code:this.code.toLowerCase()
         };
-        this.$http.post('/register', form).then(function(resp){
-            if(resp.Code == "0"){
-                showTip(this.RPwd + " --- " + this.RegAccount);
-            }else{
-                showTip("验证码错误")
-            }
-        });
+        var v = this;
+        http.post('/register',form)
+            .then(function(){
+                showTip("注册成功 ");
+                v.change();
+                v.code = v.RegPwd = v.RPwd = v.RegAccount= ""
+            })
+            .catch(function(err){
+                showTip(err)
+            });
     }
 
     function login(){
@@ -146,14 +153,19 @@
             showTip("密码不能为空");
             return ;
         }
-        showTip(this.Pwd + " --- " + this.Account);
         var form = {
             Account:this.Account,
             Pwd:this.Pwd
         };
-        this.$http.post('/login', form).then(function(resp){
-            console.log(resp)
-        });
+        http.post('/login',form)
+            .then(function(msg){
+                showTip("登录成功");
+                console.log(msg)
+            })
+            .catch(function(err){
+                showTip("密码错误或账号不存在");
+                console.log(err)
+            });
     }
     function showTip(msg){
         alert(msg)

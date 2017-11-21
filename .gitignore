@@ -8,3 +8,5 @@ static/log\.txt
 static/web/node_modules/
 
 static/web/dist/
+
+debug

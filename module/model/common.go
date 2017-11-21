@@ -5,8 +5,24 @@ type RegistData struct {
 	Account string
 	Code    string
 }
+type LoginData struct {
+	Pwd     string
+	Account string
+}
 
 type HttpResponseJson struct {
 	Msg  string `json:"msg"`
 	Code int    `json:"code"`
+}
+
+func GetHttpResponseJson(code int, msg string) *HttpResponseJson {
+	return &HttpResponseJson{
+		Msg:  msg,
+		Code: code,
+	}
+}
+
+type User struct {
+	Role    int
+	Account string
 }

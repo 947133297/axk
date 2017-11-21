@@ -1,4 +1,5 @@
-import index from './index'
+import index from './index';
+require("../../assert/css/common.css");
 
 new Vue({
     template:"<index></index>",

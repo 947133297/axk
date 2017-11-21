@@ -29,11 +29,30 @@ func HandleHTTP(httpHost int) {
 
 	// 配置路由
 	app.HttpServer.POST("/register", register)
+	app.HttpServer.POST("/login", login)
 	app.HttpServer.GET("/vk", getVK)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
 	panic(app.StartServer(httpHost))
+}
+func login(ctx dotweb.Context) error {
+	loginData := new(model.LoginData)
+	var err error
+	if err = ctx.Bind(loginData); err != nil {
+		return err
+	}
+	user, err := util.UserLogin(loginData)
+	if user != nil {
+		if err = ctx.Session().Set("user", user); err != nil {
+			util.Println("session set user error => ", err, "\r\n")
+		} else {
+			ctx.WriteJson(model.GetHttpResponseJson(0, "ok"))
+			return nil
+		}
+	}
+	ctx.WriteJson(model.GetHttpResponseJson(1, err.Error()))
+	return nil
 }
 
 func register(ctx dotweb.Context) error {
@@ -49,16 +68,16 @@ func register(ctx dotweb.Context) error {
 		util.Println("session read failed, get nil", "\r\n")
 	}
 	pass := util.VerifyCode(key, data.Code)
-	resp := new(model.HttpResponseJson)
 	if !pass {
-		resp.Code = 1
-		resp.Msg = "verify code err"
+		ctx.WriteJson(model.GetHttpResponseJson(1, "verify code err"))
 	} else {
-		resp.Code = 0
-		resp.Msg = "ok"
-		// TODO 执行入库代码
+		err := util.RegisteUser(data)
+		if err == nil {
+			ctx.WriteJson(model.GetHttpResponseJson(0, "ok"))
+		} else {
+			ctx.WriteJson(model.GetHttpResponseJson(1, err.Error()))
+		}
 	}
-	ctx.WriteJson(resp)
 	return nil
 }
 
