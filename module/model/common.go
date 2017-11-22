@@ -16,8 +16,13 @@ type HttpResponseJson struct {
 }
 type MgrMainPageData struct {
 	*HttpResponseJson
-	UserList  []string
+	UserList  []*User
 	PageTitle string
+}
+
+type UserMainPageData struct {
+	*HttpResponseJson
+	Projects []*Project
 }
 
 func GetHttpResponseJson(code int, msg string) *HttpResponseJson {
@@ -28,6 +33,13 @@ func GetHttpResponseJson(code int, msg string) *HttpResponseJson {
 }
 
 type User struct {
+	Id      int
 	Role    int
 	Account string
+}
+
+type Project struct {
+	Id   int
+	Uid  int
+	Name string
 }

@@ -154,7 +154,7 @@
         };
         http.post('/login',form)
             .then(function(data){
-                if(data.msg == "user"){
+                if(data.msg == "0"){
                     window.location.href = "/web/dist/user.html"
                 }else {
                     window.location.href = "/web/dist/mgr.html"

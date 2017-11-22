@@ -8,7 +8,7 @@
             <div> 用户列表 </div>
             <ul>
                 <li v-for="u in uList">
-                    <a :href="'/web/dist/user.html?account=' + u">{{u}}</a>
+                    <a target="_blank" :href="'/web/dist/user.html?u=' + u.Id">{{u.Account}}</a>
                 </li>
             </ul>
         </div>

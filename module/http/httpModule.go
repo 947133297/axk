@@ -33,6 +33,7 @@ func HandleHTTP(httpHost int) {
 	app.HttpServer.POST("/login", login)
 	app.HttpServer.GET("/vk", getVK)
 	app.HttpServer.GET("/getMgrData", getMgrData)
+	app.HttpServer.GET("/getUserData", getUserData)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
@@ -49,7 +50,8 @@ func login(ctx dotweb.Context) error {
 		if err = ctx.Session().Set("user", user); err != nil {
 			util.Println("session set user error => ", err, "\r\n")
 		} else {
-			ctx.WriteJson(model.GetHttpResponseJson(0, "ok"))
+			// 返回角色id，让前端选择路由
+			ctx.WriteJson(model.GetHttpResponseJson(0, strconv.Itoa(user.Role)))
 			return nil
 		}
 	}
@@ -120,4 +122,32 @@ func fetchSessionData(ctx dotweb.Context) (user *model.User) {
 	}
 	user = u.(*model.User)
 	return
+}
+
+func getUserData(ctx dotweb.Context) error {
+	user := fetchSessionData(ctx)
+	if user.Role == 1 {
+		// 管理员查看普通用户
+		id, err := strconv.Atoi(ctx.QueryString("u"))
+		if err != nil {
+			ctx.WriteJson(model.GetHttpResponseJson(1, "uid err"))
+			return nil
+		}
+		user, err = util.GetUser(id)
+		if err != nil {
+			util.Println(err.Error())
+			user = nil
+		}
+	}
+	if user == nil {
+		ctx.WriteJson(model.GetHttpResponseJson(1, "user nil"))
+		return nil
+	}
+	// 获取user数据返回
+	data := new(model.UserMainPageData)
+	data.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
+	data.Projects = util.GetAllProject(user.Id)
+
+	ctx.WriteJson(data)
+	return nil
 }

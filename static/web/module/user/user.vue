@@ -33,7 +33,7 @@
         <mainHeader :header-title="title"></mainHeader>
         <div class="container wrapper">
             <nav class="nav">
-                <router-link to="/ax">项目列表</router-link>
+                <router-link to="/projects">项目列表</router-link>
                 <router-link to="/axx">警报日志</router-link>
             </nav>
             <section class="content">
@@ -45,14 +45,12 @@
 
 <script>
     import mainHeader from '../../assert/vue-compoment/mainHeader.vue'
-    import ax from './subPages/ax.vue'
+    import projects from './subPages/projects.vue'
     import VueRouter from 'vue-router'
     Vue.use(VueRouter);
-    var http = require("../../assert/js/common");
 
     const routes = [
-        { path: '/ax', component: ax },
-        { path: '/axx', component: ax },
+        { path: '/projects', component: projects}
     ];
 
     export default {
@@ -61,15 +59,6 @@
         }),
         components: {
             mainHeader
-        },
-        created:function(){
-//            var thiz = this;
-//            http.get("/getMgrData").then(function(data){
-//                thiz.title = data.PageTitle;
-//                thiz.uList = data.UserList;
-//            }).catch(function(resp){
-//                http.handleErr(resp)
-//            });
         },
         data(){
             return {

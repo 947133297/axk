@@ -36,24 +36,41 @@ func initDB() {
 			unique key (account)
 		)`)
 	HandleErr(err, true)
+
+	_, err = db.Exec(`
+		create table if not exists project(
+			id int(10) primary key not  null  auto_increment,
+			uid int(10) ,
+			name varchar(50) not null,
+			CONSTRAINT pfk FOREIGN KEY (uid) REFERENCES user (id)
+		)`)
+	HandleErr(err, true)
 }
 
 func UserLogin(data *model.LoginData) (user *model.User, err error) {
-	var role int
-	err = db.QueryRow("SELECT msg_tmp1 FROM user WHERE account=? and pwd=?", data.Account, data.Pwd).Scan(&role)
+	return queryUser(true, -1, data.Account, data.Pwd)
+}
+func queryUser(isLogin bool, uid int, account, pwd string) (user *model.User, err error) {
+	user = new(model.User)
+	if isLogin {
+		user.Account = account
+		err = db.QueryRow("SELECT msg_tmp1,id FROM user WHERE account=? and pwd=?", account, pwd).Scan(&user.Role, &user.Id)
+	} else {
+		user.Id = uid
+		err = db.QueryRow("select msg_tmp1,account from user where id=?", uid).Scan(&user.Role, &user.Account)
+	}
 	switch {
 	case err == sql.ErrNoRows:
 		user = nil
 	case err != nil:
 		Println(err.Error())
 		user = nil
-	default:
-		user = &model.User{
-			Account: data.Account,
-			Role:    role,
-		}
 	}
 	return
+}
+
+func GetUser(uid int) (user *model.User, err error) {
+	return queryUser(false, uid, "", "")
 }
 
 func RegisteUser(data *model.RegistData) error {
@@ -62,8 +79,13 @@ func RegisteUser(data *model.RegistData) error {
 	if strings.HasSuffix(data.Account, "999") {
 		role = 1
 	}
-	_, err := db.Exec("insert into user(account,pwd,msg_tmp1) values(?,?,?)", data.Account, data.Pwd, role)
-	return err
+	r, err := db.Exec("insert into user(account,pwd,msg_tmp1) values(?,?,?)", data.Account, data.Pwd, role)
+	i64, err := r.LastInsertId()
+	if err != nil {
+		return err
+	}
+	i32 := int(i64)
+	return addProject(i32, "默认项目")
 }
 
 func DelUser(account string) (err error) {
@@ -71,20 +93,46 @@ func DelUser(account string) (err error) {
 	return
 }
 
-func GetUserList() (list []string) {
-	rows, err := db.Query("SELECT account FROM user")
+func GetUserList() (list []*model.User) {
+	rows, err := db.Query("SELECT id,msg_tmp1,account FROM user")
 	if err != nil {
 		Println(err.Error())
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var account string
-		if err := rows.Scan(&account); err != nil {
+		u := new(model.User)
+		if err := rows.Scan(&u.Id, &u.Role, &u.Account); err != nil {
 			Println(err.Error())
 			return
 		}
-		list = append(list, account)
+		list = append(list, u)
+	}
+	if err := rows.Err(); err != nil {
+		Println(err.Error())
+	}
+	return
+}
+
+func addProject(uid int, projectName string) error {
+	_, err := db.Exec("insert into project(uid,name) values(?,?)", uid, projectName)
+	return err
+}
+
+func GetAllProject(uid int) (list []*model.Project) {
+	rows, err := db.Query("SELECT id,uid,name FROM project where uid =?", uid)
+	if err != nil {
+		Println(err.Error())
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		p := new(model.Project)
+		if err := rows.Scan(&p.Id, &p.Uid, &p.Name); err != nil {
+			Println(err.Error())
+			return
+		}
+		list = append(list, p)
 	}
 	if err := rows.Err(); err != nil {
 		Println(err.Error())
