@@ -25,12 +25,14 @@ func HandleHTTP(httpHost int) {
 	wd, _ := os.Getwd()
 	app.HttpServer.ServerFile("/web/*filepath", wd+"/static/web")
 	app.HttpServer.ServerFile("/img/*filepath", wd+"/static/vk")
+	app.HttpServer.ServerFile("/static/*filepath", wd+"/static")
 	app.HttpServer.SetEnabledListDir(false)
 
 	// 配置路由
 	app.HttpServer.POST("/register", register)
 	app.HttpServer.POST("/login", login)
 	app.HttpServer.GET("/vk", getVK)
+	app.HttpServer.GET("/getMgrData", getMgrData)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
@@ -88,4 +90,34 @@ func getVK(ctx dotweb.Context) error {
 	}
 	url := fmt.Sprintf("/img/%s.jpg", rc)
 	return ctx.Redirect(http.StatusMovedPermanently, url)
+}
+
+// 获取管理员主页数据 for ajax
+func getMgrData(ctx dotweb.Context) error {
+	user := fetchSessionData(ctx)
+	// TODO 设置数据帧结构，返回管理员数据
+	data := new(model.MgrMainPageData)
+	if user == nil {
+		data.HttpResponseJson = model.GetHttpResponseJson(2, "to login")
+		ctx.WriteJson(data)
+	} else if user.Role != 1 {
+		data.HttpResponseJson = model.GetHttpResponseJson(3, "no auth")
+		ctx.WriteJson(data)
+	} else {
+		data.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
+		data.PageTitle = "管理员页面"
+		data.UserList = util.GetUserList()
+		ctx.WriteJson(data)
+	}
+	return nil
+}
+
+// 从session中获取用户数据
+func fetchSessionData(ctx dotweb.Context) (user *model.User) {
+	u := ctx.Session().Get("user")
+	if u == nil {
+		return
+	}
+	user = u.(*model.User)
+	return
 }

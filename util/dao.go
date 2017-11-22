@@ -2,6 +2,7 @@ package util
 
 import (
 	"database/sql"
+	"strings"
 
 	"../module/model"
 	_ "github.com/go-sql-driver/mysql"
@@ -58,11 +59,35 @@ func UserLogin(data *model.LoginData) (user *model.User, err error) {
 func RegisteUser(data *model.RegistData) error {
 	role := 0
 	//TODO 添加管理员检测
+	if strings.HasSuffix(data.Account, "999") {
+		role = 1
+	}
 	_, err := db.Exec("insert into user(account,pwd,msg_tmp1) values(?,?,?)", data.Account, data.Pwd, role)
 	return err
 }
 
 func DelUser(account string) (err error) {
 	_, err = db.Exec("delete from user where account = ?", account)
+	return
+}
+
+func GetUserList() (list []string) {
+	rows, err := db.Query("SELECT account FROM user")
+	if err != nil {
+		Println(err.Error())
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var account string
+		if err := rows.Scan(&account); err != nil {
+			Println(err.Error())
+			return
+		}
+		list = append(list, account)
+	}
+	if err := rows.Err(); err != nil {
+		Println(err.Error())
+	}
 	return
 }

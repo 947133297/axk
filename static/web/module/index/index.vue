@@ -29,18 +29,13 @@
         display: inline-block;
     }
 </style>
-<style>
-    body{
-        background-color: #f5f5f5 !important;
-    }
-</style>
 <template>
     <div class="wrapper">
         <div class="container">
-            <form action="" v-if="loginPage">
+            <form action="" v-if="loginPage" v-on:submit.prevent="login">
                 <div class="form-group">
                     <label for="loginAccount">账号</label>
-                    <input v-model="Account" type="email" class="form-control" id="loginAccount" placeholder="Account" maxlength="20">
+                    <input v-model="Account" class="form-control" id="loginAccount" placeholder="Account" maxlength="20">
                 </div>
                 <div class="form-group">
                     <label for="loginPwd">密码</label>
@@ -52,13 +47,13 @@
                     </label>
                 </div>
                 <div class="clearfix"></div>
-                <button type="button" class="btn btn-default fr" @click="login()">登录</button>
+                <button type="submit" class="btn btn-default fr">登录</button>
                 <button  type="button" class="btn btn-link fr" @click="change()">去注册</button>
             </form>
             <form v-else>
                 <div class="form-group">
                     <label for="registAccount">注册账号</label>
-                    <input v-model="RegAccount" type="email" class="form-control" id="registAccount" placeholder="Account" maxlength="20">
+                    <input v-model="RegAccount"  class="form-control" id="registAccount" placeholder="Account" maxlength="20">
                 </div>
                 <div class="form-group">
                     <label for="registPwd">密码</label>
@@ -139,8 +134,8 @@
                 v.change();
                 v.code = v.RegPwd = v.RPwd = v.RegAccount= ""
             })
-            .catch(function(err){
-                showTip(err)
+            .catch(function(data){
+                showTip(data.msg)
             });
     }
 
@@ -158,13 +153,16 @@
             Pwd:this.Pwd
         };
         http.post('/login',form)
-            .then(function(msg){
-                showTip("登录成功");
-                console.log(msg)
+            .then(function(data){
+                if(data.msg == "user"){
+                    window.location.href = "/web/dist/user.html"
+                }else {
+                    window.location.href = "/web/dist/mgr.html"
+                }
             })
-            .catch(function(err){
+            .catch(function(data){
                 showTip("密码错误或账号不存在");
-                console.log(err)
+                console.log(data.msg)
             });
     }
     function showTip(msg){

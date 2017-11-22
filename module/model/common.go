@@ -14,6 +14,11 @@ type HttpResponseJson struct {
 	Msg  string `json:"msg"`
 	Code int    `json:"code"`
 }
+type MgrMainPageData struct {
+	*HttpResponseJson
+	UserList  []string
+	PageTitle string
+}
 
 func GetHttpResponseJson(code int, msg string) *HttpResponseJson {
 	return &HttpResponseJson{

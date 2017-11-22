@@ -1,10 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
-module.exports = {
-    entry:  {
-        index: __dirname + "/module/index/index.js"
-    },
+var config = {
     output: {
         path: __dirname + "/dist",
         filename: "js/bundle/[name]/[hash].js",
@@ -12,12 +9,6 @@ module.exports = {
     devtool: 'eval-source-map',
     plugins: [
         new CleanWebpackPlugin(['dist']),
-
-        new HtmlWebpackPlugin({
-            template: __dirname + "/assert/template/tmp.html",
-            chunks: ['index',"commonChunk"],
-            title:'首页'
-        }),
         new CommonsChunkPlugin('commonChunk'),
     ],
     module: {
@@ -29,4 +20,33 @@ module.exports = {
     resolve: {
         extensions: [".vue",".js",".json"],
     },
+};
+
+var modules = [
+    ['index','commonChunk'],
+    ['mgr','commonChunk'],
+    ['user','commonChunk'],
+];
+function getEntrys(){
+    var o = {};
+    modules.forEach(function(ele){
+        o[ele[0]] = __dirname + "/module/"+ele[0]+"/"+ele[0]+".js"
+    });
+    return o;
 }
+
+
+function HtmlWebpackPlugins(){
+    return modules.map(function(arr){
+        return new HtmlWebpackPlugin({
+            template: __dirname + "/assert/template/tmp.html",
+            chunks: arr,
+            filename:arr[0]+".html"
+        })
+    });
+}
+
+config.entry = getEntrys();
+config.plugins.push(...(HtmlWebpackPlugins()));
+
+module.exports = config;
