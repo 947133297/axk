@@ -1,69 +1,118 @@
 <style scoped>
-    .nav{
-        display: inline-block;
-        vertical-align: top;
+    .pj{
+        width: 200px;
+        height: 230px;
+        overflow: auto;
     }
-    .nav a{
-        display: block;
-        background-color: transparent;
-        padding: 5px;
-        border-right:1px solid #ccc;
-        text-decoration: none;
-    }
-    .nav a.router-link-active{
-        border:1px solid #ccc;
-        background-color: #fff;
-    }
-    .content{
-        border:  1px solid #ccc;
-        border-left : none;
+    .search{
         flex: 1;
-        display: inline-block;
-        background-color: #fff;
-        padding: 5px;
+        margin-left: 20px;
+        height: 230px;
+        overflow: auto;
     }
-    .wrapper{
+    .log{
+       width: 100%;
+    }
+    .section{
+        display: inline-block;
+        border: 1px solid #ccc;
+        background-color: #fff;
         margin-top: 10px;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    .main{
         display: flex;
+    }
+    .addpj{
+        margin-top: -6px;
     }
 </style>
 
 <template>
     <div>
         <mainHeader :header-title="title"></mainHeader>
-        <div class="container wrapper">
-            <nav class="nav">
-                <router-link to="/projects">项目列表</router-link>
-                <router-link to="/axx">警报日志</router-link>
-            </nav>
-            <section class="content">
-                <router-view></router-view>
+        <div class="container">
+            <div class="main">
+                <section class="pj section">
+                    <h4>
+                        项目列表
+                        <span class="addpj btn btn-link fr" data-toggle="modal" data-target="#addDlg">添加</span>
+                    </h4>
+                    <div class="content">
+                        <ul>
+                            <li v-for="p in ps">
+                                <a :href="'#'+p.Id">{{p.Name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="section search">
+                    <h4>数据搜索</h4>
+                    <div>
+                        123
+                    </div>
+                </section>
+            </div>
+            <section class="section log">
+                <h4>警报日志</h4>
             </section>
+        </div>
+
+        <!-- 添加项目的对话框 -->
+        <div class="modal fade" id="addDlg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">添加项目</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="newPjName">请输入项目名称</label>
+                            <input v-model="newPjName" class="form-control" id="newPjName" placeholder="project name">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button @click="onAddProject" type="button" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
     import mainHeader from '../../assert/vue-compoment/mainHeader.vue'
-    import projects from './subPages/projects.vue'
-    import VueRouter from 'vue-router'
-    Vue.use(VueRouter);
-
-    const routes = [
-        { path: '/projects', component: projects}
-    ];
-
+    var common = require("../../assert/js/common");
+    var uid = common.getQueryString("u");
     export default {
-        router:new VueRouter({
-            routes
-        }),
         components: {
             mainHeader
         },
+        methods:{
+            onAddProject:function(){
+                alert(this.newPjName)
+                $('#addDlg').modal('toggle')
+            }
+        },
         data(){
             return {
-                title:"用户页面",
+                title:"",
+                ps:[],
+                newPjName:"",
             }
-        }
+        },
+        created:function(){
+            var thiz = this;
+            common.get("/getUserData?u=" + uid).then(function(data){
+                thiz.ps = data.Projects || [];
+                thiz.title = data.PageTitle;
+            }).catch(function(resp){
+                common.handleErr(resp)
+            });
+        },
     };
 </script>

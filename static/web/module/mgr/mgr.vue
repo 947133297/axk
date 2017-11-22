@@ -1,16 +1,28 @@
 <style>
+    .main{
+        width: 200px;
+        overflow: auto;
+        display: inline-block;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        margin-top: 10px;
+        padding: 5px;
+        border-radius: 5px;
+    }
 </style>
 
 <template>
     <div>
         <mainHeader :header-title="title"></mainHeader>
         <div class="container">
-            <div> 用户列表 </div>
-            <ul>
-                <li v-for="u in uList">
-                    <a target="_blank" :href="'/web/dist/user.html?u=' + u.Id">{{u.Account}}</a>
-                </li>
-            </ul>
+           <div class="main">
+               <h4> 用户列表 </h4>
+               <ul>
+                   <li v-for="u in uList">
+                       <a target="_blank" :href="'/web/dist/user.html?u=' + u.Id">{{u.Account}}</a>
+                   </li>
+               </ul>
+           </div>
         </div>
     </div>
 </template>

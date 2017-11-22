@@ -107,7 +107,7 @@ func getMgrData(ctx dotweb.Context) error {
 		ctx.WriteJson(data)
 	} else {
 		data.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
-		data.PageTitle = "管理员页面"
+		data.PageTitle = "管理员页面 : " + user.Account
 		data.UserList = util.GetUserList()
 		ctx.WriteJson(data)
 	}
@@ -147,7 +147,7 @@ func getUserData(ctx dotweb.Context) error {
 	data := new(model.UserMainPageData)
 	data.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
 	data.Projects = util.GetAllProject(user.Id)
-
+	data.PageTitle = "普通用户 ： " + user.Account
 	ctx.WriteJson(data)
 	return nil
 }

@@ -22,7 +22,8 @@ type MgrMainPageData struct {
 
 type UserMainPageData struct {
 	*HttpResponseJson
-	Projects []*Project
+	PageTitle string
+	Projects  []*Project
 }
 
 func GetHttpResponseJson(code int, msg string) *HttpResponseJson {
