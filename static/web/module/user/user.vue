@@ -94,8 +94,13 @@
         },
         methods:{
             onAddProject:function(){
-                alert(this.newPjName)
-                $('#addDlg').modal('toggle')
+                common.get("/addProject?pjname=" + this.newPjName+"&u="+uid).then(function(data){
+                    alert("添加成功");
+                    $('#addDlg').modal('toggle');
+                    window.location.reload();
+                }).catch(function(resp){
+                    common.handleErr(resp)
+                });
             }
         },
         data(){

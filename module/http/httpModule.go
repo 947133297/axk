@@ -34,6 +34,7 @@ func HandleHTTP(httpHost int) {
 	app.HttpServer.GET("/vk", getVK)
 	app.HttpServer.GET("/getMgrData", getMgrData)
 	app.HttpServer.GET("/getUserData", getUserData)
+	app.HttpServer.GET("/addProject", addProject)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
@@ -96,7 +97,10 @@ func getVK(ctx dotweb.Context) error {
 
 // 获取管理员主页数据 for ajax
 func getMgrData(ctx dotweb.Context) error {
-	user := fetchSessionData(ctx)
+	user := fetchActualUser(ctx)
+	if user == nil {
+		return nil
+	}
 	// TODO 设置数据帧结构，返回管理员数据
 	data := new(model.MgrMainPageData)
 	if user == nil {
@@ -115,32 +119,29 @@ func getMgrData(ctx dotweb.Context) error {
 }
 
 // 从session中获取用户数据
-func fetchSessionData(ctx dotweb.Context) (user *model.User) {
+func fetchActualUser(ctx dotweb.Context) (user *model.User) {
 	u := ctx.Session().Get("user")
 	if u == nil {
+		ctx.WriteJson(model.GetHttpResponseJson(2, "to login"))
 		return
 	}
 	user = u.(*model.User)
-	return
-}
-
-func getUserData(ctx dotweb.Context) error {
-	user := fetchSessionData(ctx)
-	if user.Role == 1 {
-		// 管理员查看普通用户
-		id, err := strconv.Atoi(ctx.QueryString("u"))
-		if err != nil {
-			ctx.WriteJson(model.GetHttpResponseJson(1, "uid err"))
-			return nil
-		}
+	id, err := strconv.Atoi(ctx.QueryString("u"))
+	if user.Role == 1 && err == nil && id > 0 {
 		user, err = util.GetUser(id)
 		if err != nil {
 			util.Println(err.Error())
-			user = nil
 		}
 	}
 	if user == nil {
 		ctx.WriteJson(model.GetHttpResponseJson(1, "user nil"))
+	}
+	return
+}
+
+func getUserData(ctx dotweb.Context) error {
+	user := fetchActualUser(ctx)
+	if user == nil {
 		return nil
 	}
 	// 获取user数据返回
@@ -149,5 +150,20 @@ func getUserData(ctx dotweb.Context) error {
 	data.Projects = util.GetAllProject(user.Id)
 	data.PageTitle = "普通用户 ： " + user.Account
 	ctx.WriteJson(data)
+	return nil
+}
+
+func addProject(ctx dotweb.Context) error {
+	user := fetchActualUser(ctx)
+	if user == nil {
+		return nil
+	}
+	err := util.AddProject(user.Id, ctx.QueryString("pjname"))
+	if err != nil {
+		util.Println(err.Error())
+		ctx.WriteJson(model.GetHttpResponseJson(1, err.Error()))
+	} else {
+		ctx.WriteJson(model.GetHttpResponseJson(0, "ok"))
+	}
 	return nil
 }

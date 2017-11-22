@@ -85,7 +85,7 @@ func RegisteUser(data *model.RegistData) error {
 		return err
 	}
 	i32 := int(i64)
-	return addProject(i32, "默认项目")
+	return AddProject(i32, "默认项目")
 }
 
 func DelUser(account string) (err error) {
@@ -94,7 +94,7 @@ func DelUser(account string) (err error) {
 }
 
 func GetUserList() (list []*model.User) {
-	rows, err := db.Query("SELECT id,msg_tmp1,account FROM user")
+	rows, err := db.Query("SELECT id,msg_tmp1,account FROM user where msg_tmp1 = 0")
 	if err != nil {
 		Println(err.Error())
 		return
@@ -114,7 +114,7 @@ func GetUserList() (list []*model.User) {
 	return
 }
 
-func addProject(uid int, projectName string) error {
+func AddProject(uid int, projectName string) error {
 	_, err := db.Exec("insert into project(uid,name) values(?,?)", uid, projectName)
 	return err
 }

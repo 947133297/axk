@@ -78,7 +78,7 @@
 </template>
 
 <script>
-    var http = require("../../assert/js/common");
+    var common = require("../../assert/js/common");
     export default {
         methods: {
             change: function () {
@@ -128,31 +128,31 @@
             Code:this.code.toLowerCase()
         };
         var v = this;
-        http.post('/register',form)
+        common.post('/register',form)
             .then(function(){
-                showTip("注册成功 ");
+                common.showTip("注册成功 ");
                 v.change();
                 v.code = v.RegPwd = v.RPwd = v.RegAccount= ""
             })
             .catch(function(data){
-                showTip(data.msg)
+                common.showTip(data.msg)
             });
     }
 
     function login(){
         if(this.Account.length === 0){
-            showTip("登录账号不能为空");
+            common.showTip("登录账号不能为空");
             return ;
         }
         if(this.Pwd.length === 0){
-            showTip("密码不能为空");
+            common.showTip("密码不能为空");
             return ;
         }
         var form = {
             Account:this.Account,
             Pwd:this.Pwd
         };
-        http.post('/login',form)
+        common.post('/login',form)
             .then(function(data){
                 if(data.msg == "0"){
                     window.location.href = "/web/dist/user.html"
@@ -161,14 +161,10 @@
                 }
             })
             .catch(function(data){
-                showTip("密码错误或账号不存在");
+                common.showTip("密码错误或账号不存在");
                 console.log(data.msg)
             });
     }
-    function showTip(msg){
-        alert(msg)
-    }
-
     function changeVk(){
         this.vk = "/vk?r=" + Math.floor(Math.random() * ( 1000 + 1))
     }

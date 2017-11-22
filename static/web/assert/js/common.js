@@ -30,7 +30,9 @@ function handleErr(body){
         window.location.href = "/static/no-auth.html"
     }
 }
-
+function showTip(msg){
+    alert(msg)
+}
 function getQueryString(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
     var r = window.location.search.substr(1).match(reg);
@@ -40,5 +42,6 @@ module.exports = {
     post,
     get,
     handleErr,
-    getQueryString
+    getQueryString,
+    showTip
 };
