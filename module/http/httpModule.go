@@ -39,6 +39,7 @@ func HandleHTTP(httpHost int) {
 	app.HttpServer.GET("/addProject", addProject)
 	app.HttpServer.GET("/getProjectData", getProjectData)
 	app.HttpServer.POST("/addWatchSection", addWatchSection)
+	app.HttpServer.POST("/upload", upload)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
@@ -194,6 +195,26 @@ func getProjectData(ctx dotweb.Context) error {
 
 var filePath string
 
+func upload(ctx dotweb.Context) error {
+	user := fetchActualUser(ctx)
+	if user == nil {
+		return nil
+	}
+	file, err := ctx.Request().FormFile("file")
+	if err != nil {
+		util.Println(err.Error())
+		return err
+	}
+	fileName := util.EncodeFileName(file.FileName(), file.GetFileExt())
+	_, err = file.SaveFile(filePath + "/" + fileName)
+	if err != nil {
+		util.Println(err.Error())
+		return err
+	}
+	ctx.WriteJson(model.GetHttpResponseJson(0, fileName))
+	return nil
+}
+
 // needs p u params
 func addWatchSection(ctx dotweb.Context) error {
 	user := fetchActualUser(ctx)
@@ -209,25 +230,13 @@ func addWatchSection(ctx dotweb.Context) error {
 		util.Println(err.Error())
 		return err
 	}
-	// 保存文件
-	file, err := ctx.Request().FormFile("file")
-	if err != nil {
-		util.Println(err.Error())
-		return err
-	}
-	fileName := util.EncodeFileName(file.FileName(), file.GetFileExt())
-	_, err = file.SaveFile(filePath + "/" + fileName)
-	if err != nil {
-		util.Println(err.Error())
-		return err
-	}
 
 	// 入库
 	sd := &model.Section{
 		Pid:   ctx.QueryString("p"),
 		Uid:   user.Id,
 		Name:  section.Name,
-		Graph: fileName,
+		Graph: section.Graph,
 	}
 	err = util.AddSection(sd)
 	if err != nil {
@@ -236,9 +245,6 @@ func addWatchSection(ctx dotweb.Context) error {
 		return nil
 	}
 	// 响应
-	res := new(model.AddSectionResult)
-	res.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
-	res.FileName = fileName
-	ctx.WriteJson(res)
+	ctx.WriteJson(model.GetHttpResponseJson(0, "ok"))
 	return nil
 }

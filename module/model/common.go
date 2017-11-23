@@ -53,13 +53,9 @@ type ProjectPageData struct {
 }
 
 type AddSectionData struct {
-	Name string
+	Name  string
+	Graph string
 	// TODO 这里添加其他检测区域数据（施工图除外）
-}
-
-type AddSectionResult struct {
-	*HttpResponseJson
-	FileName string // 保存后的文件名
 }
 
 // for inner dispatch
