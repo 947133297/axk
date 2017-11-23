@@ -1,8 +1,12 @@
 package util
 
 import (
+	"crypto/md5"
+	"fmt"
+	"io"
 	"log"
 	"os"
+	"time"
 )
 
 var logger *log.Logger
@@ -39,4 +43,11 @@ func HandleErr(err error, ifExit bool) {
 		}
 		Println(err.Error())
 	}
+}
+
+func EncodeFileName(name, ext string) string {
+	h := md5.New()
+	io.WriteString(h, name+time.Now().Format("2006-01-02 15:04:05"))
+	str := fmt.Sprintf("%x", h.Sum(nil))
+	return str + "." + ext
 }

@@ -28,6 +28,8 @@ func HandleHTTP(httpHost int) {
 	app.HttpServer.ServerFile("/static/*filepath", wd+"/static")
 	app.HttpServer.SetEnabledListDir(false)
 
+	filePath = wd + "/static/upload"
+
 	// 配置路由
 	app.HttpServer.POST("/register", register)
 	app.HttpServer.POST("/login", login)
@@ -35,6 +37,8 @@ func HandleHTTP(httpHost int) {
 	app.HttpServer.GET("/getMgrData", getMgrData)
 	app.HttpServer.GET("/getUserData", getUserData)
 	app.HttpServer.GET("/addProject", addProject)
+	app.HttpServer.GET("/getProjectData", getProjectData)
+	app.HttpServer.POST("/addWatchSection", addWatchSection)
 
 	// 开始运行
 	util.Println("http server runing on :" + strconv.Itoa(httpHost))
@@ -165,5 +169,76 @@ func addProject(ctx dotweb.Context) error {
 	} else {
 		ctx.WriteJson(model.GetHttpResponseJson(0, "ok"))
 	}
+	return nil
+}
+
+func getProjectData(ctx dotweb.Context) error {
+	user := fetchActualUser(ctx)
+	if user == nil {
+		return nil
+	}
+	pid := ctx.QueryString("p")
+	project := util.GetProjectMsg(user.Id, pid)
+	if project == nil {
+		ctx.WriteJson(model.GetHttpResponseJson(1, "project nil"))
+		return nil
+	}
+
+	data := new(model.ProjectPageData)
+	data.Project = project
+	data.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
+	data.SectionList = util.GetAllSection(pid, user.Id)
+	ctx.WriteJson(data)
+	return nil
+}
+
+var filePath string
+
+// needs p u params
+func addWatchSection(ctx dotweb.Context) error {
+	user := fetchActualUser(ctx)
+	if user == nil {
+		return nil
+	}
+
+	section := new(model.AddSectionData)
+	var err error
+
+	// 获取基本数据
+	if err = ctx.Bind(section); err != nil {
+		util.Println(err.Error())
+		return err
+	}
+	// 保存文件
+	file, err := ctx.Request().FormFile("file")
+	if err != nil {
+		util.Println(err.Error())
+		return err
+	}
+	fileName := util.EncodeFileName(file.FileName(), file.GetFileExt())
+	_, err = file.SaveFile(filePath + "/" + fileName)
+	if err != nil {
+		util.Println(err.Error())
+		return err
+	}
+
+	// 入库
+	sd := &model.Section{
+		Pid:   ctx.QueryString("p"),
+		Uid:   user.Id,
+		Name:  section.Name,
+		Graph: fileName,
+	}
+	err = util.AddSection(sd)
+	if err != nil {
+		util.Println(err.Error())
+		ctx.WriteJson(model.GetHttpResponseJson(1, err.Error()))
+		return nil
+	}
+	// 响应
+	res := new(model.AddSectionResult)
+	res.HttpResponseJson = model.GetHttpResponseJson(0, "ok")
+	res.FileName = fileName
+	ctx.WriteJson(res)
 	return nil
 }

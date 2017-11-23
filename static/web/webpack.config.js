@@ -26,6 +26,7 @@ var modules = [
     ['index','commonChunk'],
     ['mgr','commonChunk'],
     ['user','commonChunk'],
+    ['project','commonChunk'],
 ];
 function getEntrys(){
     var o = {};

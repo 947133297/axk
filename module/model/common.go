@@ -44,3 +44,29 @@ type Project struct {
 	Uid  int
 	Name string
 }
+
+type ProjectPageData struct {
+	*HttpResponseJson
+	*Project
+	SectionList []*Section
+	// 这里添加其他项目主页的数据
+}
+
+type AddSectionData struct {
+	Name string
+	// TODO 这里添加其他检测区域数据（施工图除外）
+}
+
+type AddSectionResult struct {
+	*HttpResponseJson
+	FileName string // 保存后的文件名
+}
+
+// for inner dispatch
+type Section struct {
+	Id    string
+	Pid   string
+	Uid   int
+	Graph string
+	Name  string
+}

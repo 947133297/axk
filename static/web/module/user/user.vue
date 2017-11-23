@@ -13,14 +13,6 @@
     .log{
        width: 100%;
     }
-    .section{
-        display: inline-block;
-        border: 1px solid #ccc;
-        background-color: #fff;
-        margin-top: 10px;
-        padding: 5px;
-        border-radius: 5px;
-    }
     .main{
         display: flex;
     }
@@ -42,7 +34,7 @@
                     <div class="content">
                         <ul>
                             <li v-for="p in ps">
-                                <a :href="'#'+p.Id">{{p.Name}}</a>
+                                <a :href="'/web/dist/project.html?p='+p.Id+'&u='+uid">{{p.Name}}</a>
                             </li>
                         </ul>
                     </div>
@@ -87,17 +79,18 @@
 <script>
     import mainHeader from '../../assert/vue-compoment/mainHeader.vue'
     var common = require("../../assert/js/common");
-    var uid = common.getQueryString("u");
     export default {
         components: {
             mainHeader
         },
         methods:{
             onAddProject:function(){
-                common.get("/addProject?pjname=" + this.newPjName+"&u="+uid).then(function(data){
-                    alert("添加成功");
+                common.get("/addProject?pjname=" + this.newPjName+"&u="+this.uid).then(function(data){
+                    common.showTip("添加成功");
                     $('#addDlg').modal('toggle');
-                    window.location.reload();
+                   setTimeout(function(){
+                       window.location.reload();
+                   },500);
                 }).catch(function(resp){
                     common.handleErr(resp)
                 });
@@ -108,11 +101,12 @@
                 title:"",
                 ps:[],
                 newPjName:"",
+                uid:common.getQueryString("u"),
             }
         },
         created:function(){
             var thiz = this;
-            common.get("/getUserData?u=" + uid).then(function(data){
+            common.get("/getUserData?u=" + this.uid).then(function(data){
                 thiz.ps = data.Projects || [];
                 thiz.title = data.PageTitle;
             }).catch(function(resp){

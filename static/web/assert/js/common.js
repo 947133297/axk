@@ -1,6 +1,6 @@
-function post(url,form){
+function post(url,form,opt){
     return new Promise(function(resolve,reject){
-        Vue.http.post(url, form).then(function(resp){
+        Vue.http.post(url, form,opt).then(function(resp){
             console.log(resp)
             if(resp.body.code == 0){
                 resolve(resp.body);
