@@ -121,7 +121,7 @@
         },
         created:function(){
             var thiz = this;
-            forTest(thiz);
+//            forTest(thiz);
             common.get("/getProjectData?u=" + this.uid + "&p="+this.pid).then(function(data){
                 thiz.title = "项目主页：" + data.Name;
                 thiz.sectionList = data.SectionList;
@@ -157,7 +157,7 @@
                 common.showTip(data.msg)
             });
     }
-    function fileChanged(){
+    function fileChanged(evt){
         var thiz = this;
         var files = evt.target.files;
         if (!files || files.length === 0) {

@@ -6,7 +6,7 @@ var config = {
         path: __dirname + "/dist",
         filename: "js/bundle/[name]/[hash].js",
     },
-    devtool: 'eval-source-map',
+    // devtool: 'eval-source-map',
     plugins: [
         new CleanWebpackPlugin(['dist']),
         new CommonsChunkPlugin('commonChunk'),
@@ -14,6 +14,7 @@ var config = {
     module: {
         rules: [
             { test: /\.vue$/, loader: 'vue-loader' },
+            { test: /\.js/, loader: 'babel-loader' , exclude:  /node_modules/},
             { test: /\.s?css$/, loader: 'style-loader!css-loader!sass-loader' },
         ]
     },
@@ -21,6 +22,7 @@ var config = {
         extensions: [".vue",".js",".json"],
     },
 };
+// 如果没有使用babel-loader，则在ie11中运行会报错
 
 var modules = [
     ['index','commonChunk'],
