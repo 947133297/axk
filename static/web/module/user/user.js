@@ -1,8 +1,3 @@
-import user from './user';
-
+import app from './user';
 require("../../assert/css/common.css");
-new Vue({
-    template:"<user></user>",
-    el:"#root",
-    components: { user }
-})
+new Vue(app).$mount("#root");

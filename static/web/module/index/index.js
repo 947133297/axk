@@ -1,8 +1,3 @@
-import index from './index';
+import app from './index';
 require("../../assert/css/common.css");
-
-new Vue({
-    template:"<index></index>",
-    el:"#root",
-    components: { index }
-})
+new Vue(app).$mount("#root");

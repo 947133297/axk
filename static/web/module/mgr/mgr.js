@@ -1,7 +1,3 @@
-import mgr from './mgr';
+import app from './mgr';
 require("../../assert/css/common.css");
-new Vue({
-    template:"<mgr></mgr>",
-    el:"#root",
-    components: { mgr }
-})
+new Vue(app).$mount("#root");
