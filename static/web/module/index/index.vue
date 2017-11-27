@@ -4,7 +4,6 @@
         width: 400px;
         box-shadow: 10px 10px 5px #888888;
         background: #fff;
-        margin-top: 50px;
         padding: 20px 20px;
         border-radius: 5px;
         display: inline-block;
@@ -14,10 +13,11 @@
         height: 100%;
         width: 100%;
         position: fixed;
-        display:-webkit-box;
-        -webkit-box-align:center;
-        -webkit-box-pack:center;
         text-align: center;
+
+        justify-content:center;
+        display: flex;
+        flex-direction:column;
     }
     .vk{
         cursor: pointer;
@@ -107,19 +107,19 @@
 
     function regist(){
         if(this.RegAccount.length === 0){
-            showTip("注册账号不能为空");
+            common.showTip("注册账号不能为空");
             return ;
         }
         if(this.RegPwd.length === 0){
-            showTip("密码不能为空");
+            common.showTip("密码不能为空");
             return ;
         }
         if(this.RPwd !== this.RegPwd){
-            showTip("两次输入密码不一致")
+            common.showTip("两次输入密码不一致");
             return ;
         }
         if(this.code.length === 0){
-            showTip("请填验证码");
+            common.showTip("请填验证码");
             return ;
         }
         var form = {

@@ -33,7 +33,7 @@
             <section class="list section">
                 <h4>
                     检测区域
-                    <span class="btn btn-link fr" data-toggle="modal" data-target="#addDlg">添加</span>
+                    <span class="btn btn-link fr" style="margin-top: -6px;" data-toggle="modal" data-target="#addDlg">添加</span>
                 </h4>
                 <div class="content">
                     {{sectionList}}
